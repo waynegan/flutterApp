@@ -11,9 +11,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
+        // This is the theme of your application.
+        //
+        // TRY THIS: Try running your application with "flutter run". You'll see
+        // the application has a purple toolbar. Then, without quitting the app,
+        // try changing the seedColor in the colorScheme below to Colors.green
+        // and then invoke "hot reload" (save your changes or press the "hot
+        // reload" button in a Flutter-supported IDE, or press "r" if you used
+        // the command line to start the app).
+        //
+        // Notice that the counter didn't reset back to zero; the application
+        // state is not lost during the reload. To reset the state, use hot
+        // restart instead.
+        //
+        // This works for code too, not just values: Most code changes can be
+        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
@@ -41,7 +55,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  double _counter = 0;
+  int _counter = 0;
+  late TextEditingController
+      _loginController; // for user name text, initialize later, but not null
+  late TextEditingController
+      _passwordController; // for passowrd text, initialize later, but not null
+  static const String correctPassword = 'QWERTY123'; // The correct password
+  String _imagePath = '../assets/question-mark.png'; // initialise the picture
+
+  @override
+  void initState() {
+    //loading page, Initialize the controllers
+    super.initState();
+    _loginController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    // unloading page, dispose the controllers to free up resources
+    _loginController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  // function for buttonClicked
+  void buttonClicked() {
+    var userTyped = _passwordController.value.text;
+    setState(() {
+      _imagePath = userTyped == correctPassword
+          ? '../assets/idea.png'
+          : '../assets/stop.png';
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -50,418 +96,69 @@ class _MyHomePageState extends State<MyHomePage> {
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
-      if (_counter < 100) _counter++;
-    });
-  }
-
-  TextEditingController _textController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  var imageSrc = '../assets/question-mark.png';
-
-  void setNewValue(double value) {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-
-      _counter = value;
+      _counter++;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    // This method is rerun every time setState is called, for instance as done
+    // by the _incrementCounter method above.
+    //
+    // The Flutter framework has been optimized to make rerunning build methods
+    // fast, so that you can just rebuild anything that needs updating rather
+    // than having to individually change instances of widgets.
     return Scaffold(
-      // body: SingleChildScrollView(
+      appBar: AppBar(
+        // TRY THIS: Try changing the color here to a specific color (to
+        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+        // change color while the other colors stay the same.
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
       body: Center(
+        // Center is a layout widget. It takes a single child and positions it
+        // in the middle of the parent.
         child: Column(
-          // mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Column is also a layout widget. It takes a list of children and
+          // arranges them vertically. By default, it sizes itself to fit its
+          // children horizontally, and tries to be as tall as its parent.
+          //
+          // Column has various properties to control how it sizes itself and
+          // how it positions its children. Here we use mainAxisAlignment to
+          // center the children vertically; the main axis here is the vertical
+          // axis because Columns are vertical (the cross axis would be
+          // horizontal).
+          //
+          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+          // action in the IDE, or press "p" in the console), to see the
+          // wireframe for each widget.
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'BROWSE CATEGORIES',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Not sure about exactly which recipe you\'re looking for? Do a search, or dive into our most popular categories.',
-              style: TextStyle(fontSize: 15),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'BY MEAT',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    ClipOval(
-                      child: Image.asset(
-                        "assets/1.jpeg",
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover, // Adjust the fit as needed
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Center(
-                        child: Text(
-                          "Beef",
-                          style: TextStyle(
-                            fontSize: 15.0,
-                            color: Colors.white,
-                            shadows: <Shadow>[
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 1.0,
-                                color: Color.fromARGB(255, 0, 0, 0),
-                              ),
-                            ],
-                            backgroundColor: Colors.transparent,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    ClipOval(
-                      child: Image.asset(
-                        "assets/2.jpg",
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover, // Adjust the fit as needed
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Center(
-                        child: Text(
-                          "Chicken",
-                          style: TextStyle(
-                            fontSize: 15.0,
-                            color: Colors.white,
-                            shadows: <Shadow>[
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 1.0,
-                                color: Color.fromARGB(255, 0, 0, 0),
-                              ),
-                            ],
-                            backgroundColor: Colors.transparent,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    ClipOval(
-                      child: Image.asset(
-                        "assets/3.jpg",
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover, // Adjust the fit as needed
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Center(
-                        child: Text(
-                          "Pork",
-                          style: TextStyle(
-                            fontSize: 15.0,
-                            color: Colors.white,
-                            shadows: <Shadow>[
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 1.0,
-                                color: Color.fromARGB(255, 0, 0, 0),
-                              ),
-                            ],
-                            backgroundColor: Colors.transparent,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    ClipOval(
-                      child: Image.asset(
-                        "assets/4.jpeg",
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover, // Adjust the fit as needed
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Center(
-                        child: Text(
-                          "SeaFood",
-                          style: TextStyle(
-                            fontSize: 15.0,
-                            color: Colors.white,
-                            shadows: <Shadow>[
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 1.0,
-                                color: Color.fromARGB(255, 0, 0, 0),
-                              ),
-                            ],
-                            backgroundColor: Colors.transparent,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-            SizedBox(height: 10),
-            Text(
-              'BY COURSE',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: <Widget>[
-                      ClipOval(
-                        child: Image.asset(
-                          "assets/5.jpeg",
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover, // Adjust the fit as needed
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(height: 10), // Space between image and text
-                            Text(
-                              "Main Dishes",
-                              style: TextStyle(
-                                fontSize: 15.0,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-
-                  Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: <Widget>[
-                      ClipOval(
-                        child: Image.asset(
-                          "assets/6.jpeg",
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover, // Adjust the fit as needed
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Positioned(
-                        bottom: 0,
-                        child: Center(
-                          child: Text(
-                            "Salad Recipes",
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: <Widget>[
-                      ClipOval(
-                        child: Image.asset(
-                          "assets/7.jpg",
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover, // Adjust the fit as needed
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Positioned(
-                        bottom: 0,
-                        child: Center(
-                          child: Text(
-                            "Side Dishes",
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: <Widget>[
-                      ClipOval(
-                        child: Image.asset(
-                          "assets/8.jpeg",
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover, // Adjust the fit as needed
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Positioned(
-                        bottom: 0,
-                        child: Center(
-                          child: Text(
-                            "Crockpot",
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                ]),
-            Text(
-              'BY DESSERT',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: <Widget>[
-                      ClipOval(
-                        child: Image.asset(
-                          "assets/5.jpeg",
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover, // Adjust the fit as needed
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Positioned(
-                        bottom: 0,
-                        child: Center(
-                          child: Text(
-                            "Ice Cream",
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: <Widget>[
-                      ClipOval(
-                        child: Image.asset(
-                          "assets/6.jpeg",
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover, // Adjust the fit as needed
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Positioned(
-                        bottom: 0,
-                        child: Center(
-                          child: Text(
-                            "Brownies",
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: <Widget>[
-                      ClipOval(
-                        child: Image.asset(
-                          "assets/7.jpg",
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover, // Adjust the fit as needed
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Positioned(
-                        bottom: 0,
-                        child: Center(
-                          child: Text(
-                            "Pies",
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: <Widget>[
-                      ClipOval(
-                        child: Image.asset(
-                          "assets/8.jpeg",
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover, // Adjust the fit as needed
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Positioned(
-                        bottom: 0,
-                        child: Center(
-                          child: Text(
-                            "Cookies",
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                ]),
+            TextField(
+                controller: _loginController,
+                decoration: InputDecoration(
+                  hintText: "Login",
+                  border: OutlineInputBorder(),
+                  labelText: "Login",
+                )),
+            TextField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  hintText: "Password",
+                  border: OutlineInputBorder(),
+                  labelText: "Password",
+                )),
+            ElevatedButton(
+                onPressed: buttonClicked, // Lambda function, anonymous function
+                child: Text("Login")),
+            Image.asset(_imagePath, width: 300.0, height: 300.0),
           ],
         ),
       ),
-
     );
   }
 }

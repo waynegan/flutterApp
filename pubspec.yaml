@@ -68,6 +68,9 @@ flutter:
      - assets/6.jpeg
      - assets/7.jpg
      - assets/8.jpeg
+     - assets/question-mark.png
+     - assets/idea.png
+     - assets/stop.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
