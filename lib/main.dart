@@ -1,4 +1,7 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());
@@ -69,6 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _loginController = TextEditingController();
     _passwordController = TextEditingController();
+    _loadPreferences();
   }
 
   @override
@@ -87,6 +91,82 @@ class _MyHomePageState extends State<MyHomePage> {
           ? '../assets/idea.png'
           : '../assets/stop.png';
     });
+    _showDialog();
+  }
+
+  _loadPreferences() async {
+    // Load the preferences
+    // TRY THIS: Change the key to something else, and see what happens when
+    // you run the app again.
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _loginController.text = prefs.getString('login') ?? '';
+    _passwordController.text = prefs.getString('password') ?? '';
+    if (_loginController.text.isNotEmpty ||
+        _passwordController.text.isNotEmpty) {
+      SnackBar snackBar = SnackBar(
+        content: Text("Username and password loaded"),
+        duration: Duration(seconds: 5),
+        // a button to clear username and password
+        action: SnackBarAction(
+          label: 'Clear',
+          onPressed: () {
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.remove('login');
+              prefs.remove('password');
+            });
+            _loginController.text = '';
+            _passwordController.text = '';
+          },
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Alert"),
+          content: Text("Would you like to save username and password?"),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Yes"),
+              onPressed: () {
+                SharedPreferences.getInstance().then((prefs) {
+                  prefs.setString('login', _loginController.text);
+                  prefs.setString('password', _passwordController.text);
+                });
+                SnackBar snackBar = SnackBar(
+                  content: Text("Username and password saved"),
+                  duration: Duration(seconds: 3),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("No"),
+              onPressed: () {
+                SharedPreferences.getInstance().then((prefs) {
+                  prefs.remove('login');
+                  prefs.remove('password');
+                });
+                SnackBar snackBar = SnackBar(
+                  content: Text("Username and password have been cleared"),
+                  duration: Duration(seconds: 3),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                _loginController.text = '';
+                _passwordController.text = '';
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _incrementCounter() {
