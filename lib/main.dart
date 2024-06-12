@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,21 +15,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
@@ -38,15 +25,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -69,6 +47,33 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _loginController = TextEditingController();
     _passwordController = TextEditingController();
+    _loadPreferences();
+  }
+
+  _loadPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _loginController.text = prefs.getString('login') ?? '';
+    _passwordController.text = prefs.getString('password') ?? '';
+    if (_loginController.text.isNotEmpty ||
+        _passwordController.text.isNotEmpty) {
+      SnackBar snackBar = SnackBar(
+        content: Text("Username and password loaded"),
+        duration: Duration(seconds: 5),
+        // a button to clear username and password
+        action: SnackBarAction(
+          label: 'Clear',
+          onPressed: () {
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.remove('login');
+              prefs.remove('password');
+            });
+            _loginController.text = '';
+            _passwordController.text = '';
+          },
+        ),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
   @override
@@ -160,5 +165,194 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+}
+
+class ProfilePage extends StatefulWidget {
+  final String username;
+
+  ProfilePage({required this.username});
+
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
+  late TextEditingController _phoneController;
+  late TextEditingController _emailController;
+  late Repository _repository;
+
+  @override
+  void initState() {
+    super.initState();
+    _firstNameController = TextEditingController();
+    _lastNameController = TextEditingController();
+    _phoneController = TextEditingController();
+    _emailController = TextEditingController();
+    _repository = Repository();
+    _loadData();
+  }
+
+  @override
+  void dispose() {
+    _saveData();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  _loadData() async {
+    await _repository.loadData();
+    setState(() {
+      _firstNameController.text = _repository.firstName ?? '';
+      _lastNameController.text = _repository.lastName ?? '';
+      _phoneController.text = _repository.phone ?? '';
+      _emailController.text = _repository.email ?? '';
+    });
+  }
+
+  _saveData() {
+    _repository.firstName = _firstNameController.text;
+    _repository.lastName = _lastNameController.text;
+    _repository.phone = _phoneController.text;
+    _repository.email = _emailController.text;
+    _repository.saveData();
+  }
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text("URL is not supported on this device"),
+            actions: <Widget>[
+              TextButton(
+                child: Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Profile Page"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _firstNameController,
+              decoration: InputDecoration(
+                hintText: "First Name",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _lastNameController,
+              decoration: InputDecoration(
+                hintText: "Last Name",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Flexible(
+                  child: TextField(
+                    controller: _phoneController,
+                    decoration: InputDecoration(
+                      hintText: "Phone Number",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 8,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _launchURL("tel:${_phoneController.text}");
+                  },
+                  child: Icon(Icons.phone),
+                ),
+                SizedBox(
+                  width: 8,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _launchURL("sms:${_phoneController.text}");
+                  },
+                  child: Icon(Icons.sms),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Flexible(
+                  child: TextField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      hintText: "Email Address",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 8,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    _launchURL("mailto:${_emailController.text}");
+                  },
+                  child: Icon(Icons.email),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Repository {
+  String? firstName;
+  String? lastName;
+  String? phone;
+  String? email;
+
+  Future<void> loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    firstName = prefs.getString('firstName');
+    lastName = prefs.getString('lastName');
+    phone = prefs.getString('phone');
+    email = prefs.getString('email');
+  }
+
+  Future<void> saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('firstName', firstName ?? '');
+    prefs.setString('lastName', lastName ?? '');
+    prefs.setString('phone', phone ?? '');
+    prefs.setString('email', email ?? '');
   }
 }
